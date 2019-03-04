@@ -1,6 +1,7 @@
 package com.map.service;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 
@@ -13,12 +14,15 @@ import com.map.client.rest.GoogleMapAPIClient;
 import com.map.constants.ApplicationConstants;
 import com.map.json.model.Address;
 import com.map.json.model.Category;
+import com.map.json.model.Navigation;
+import com.map.json.model.PlaceMark;
 import com.map.json.model.PlaceMarksResponse;
+import com.map.json.model.google.directions.DirectionResponse;
 import com.map.json.model.google.nearby.NearByResponse;
 import com.map.json.model.google.placedetails.PlaceDetailsResponse;
 import com.map.json.model.google.nearby.Result;
 
-import scala.Array;
+
 
 @Service
 public class MapService {
@@ -78,4 +82,23 @@ public class MapService {
 	return new ResponseEntity<List<PlaceMarksResponse>>(placeMarksResponseList, HttpStatus.OK);	
 	
 	}	
+	
+	public ResponseEntity<DirectionResponse> getNavigation(Navigation navigation) {
+		String wayPoints ="";
+		int i=0;
+		String origin = navigation.getPlacemarks().get(0).getLocation().getLatitude() + "," + navigation.getPlacemarks().get(0).getLocation().getLongitude();
+		String destination = navigation.getPlacemarks().get(navigation.getPlacemarks().size() - 1).getLocation().getLatitude() + "," + navigation.getPlacemarks().get(navigation.getPlacemarks().size() - 1).getLocation().getLongitude();
+		for (PlaceMark placeMark : navigation.getPlacemarks()) {
+			if(i != 0 && i != (navigation.getPlacemarks().size() - 1)) {
+				 
+				wayPoints = placeMark.getLocation().getLatitude() + "," + placeMark.getLocation().getLongitude() + "|";
+			}	
+			i++;
+		}
+		
+		return googleMapAPIClient.getDirections(origin, wayPoints, destination);
+		
+			
+	}
+	
 }

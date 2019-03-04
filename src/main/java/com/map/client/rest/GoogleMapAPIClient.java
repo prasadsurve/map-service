@@ -35,6 +35,9 @@ public class GoogleMapAPIClient {
 	@Value("${com.map.google.placedetails.api.baseurl}")
 	private String placeDetailsAPIBaseURL;
 	
+	@Value("${com.map.google.directions.api.baseurl}")
+	private String directionsAPIBaseURL;
+	
 	@Value("${com.map.google.places.search.radius}")
 	private int defaultSearchRadius; 
 	
@@ -88,15 +91,19 @@ public class GoogleMapAPIClient {
 		HttpHeaders headers = new HttpHeaders();
 		HttpEntity<String> entity = new HttpEntity<String>(headers);
 		headers.setContentType(MediaType.APPLICATION_JSON);
+		if (!wayPoints.isEmpty())
+			directionsAPIBaseURL += "origin=" + origin + "waypoints=" + wayPoints + "destination=" + destination + "key=" + apiKey;
+		else
+			directionsAPIBaseURL += "origin=" + origin + "destination=" + destination + "key=" + apiKey;
 		
-		response = restTemplate.exchange(placeDetailsAPIBaseURL + "origin=" + origin + "waypoints=" + wayPoints + "destination=" + destination + "key=" + apiKey,
+		response = restTemplate.exchange(directionsAPIBaseURL,
 				HttpMethod.GET, entity, DirectionResponse.class);
 		
 		}catch (HttpClientErrorException e) {
-			LOGGER.error("Exception while fetching data from Google MAps Destination Details API:{}", e.getMessage());
+			LOGGER.error("Exception while fetching data from Google Maps Directions API:{}", e.getMessage());
 			
 		}catch(Exception e) {
-			LOGGER.error("Exception while fetching data from Google MAps Destination Details API:{}", e.getMessage());
+			LOGGER.error("Exception while fetching data from Google Maps Directions API:{}", e.getMessage());
 		}
 		return response;
 	}
